@@ -1,0 +1,123 @@
+ //GROWER RULES
+ rule GrowerViewsShipment {
+  description: "Grower can view its own shipment"
+  participant(p): "org.acme.shipping.perishable.Grower"
+  operation: READ
+  resource(r): "org.acme.shipping.perishable.Shipment"
+  condition: (r.contract.grower.getIdentifier() == p.getIdentifier())
+  action: ALLOW
+}
+
+rule GrowerViewsContract {
+  description: "Grower can view its own contract"
+  participant(p): "org.acme.shipping.perishable.Grower"
+  operation: READ
+  resource(r): "org.acme.shipping.perishable.Contract"
+  condition: (r.grower.getIdentifier() == p.getIdentifier())
+  action: ALLOW
+}
+
+//SHIPPER RULES
+rule ShipperOwnsContract {
+  description: "Shipper can perform all operations on its own contract"
+  participant(p): "org.acme.shipping.perishable.Shipper"
+  operation: ALL
+  resource(r): "org.acme.shipping.perishable.Contract"
+  condition: (p.getIdentifier() == r.shipper.getIdentifier())
+  action: ALLOW
+}
+
+rule ShipperOwnsShipment {
+	description: "Shipper can perform all operations on its own shipment"
+  participant(p): "org.acme.shipping.perishable.Shipper"
+  operation: ALL
+  resource(r): "org.acme.shipping.perishable.Shipment"
+  condition: (p.getIdentifier() == r.contract.shipper.getIdentifier())
+  action: ALLOW
+}
+
+rule ShipperInvokesTemperatureReading {
+	description: "Shipper can update temperature of its own shipment"
+  	participant(p): "org.acme.shipping.perishable.Shipper"
+  	operation: ALL
+    resource(r): "org.acme.shipping.perishable.TemperatureReading"
+    condition: (p.getIdentifier() == r.shipment.contract.shipper.getIdentifier())
+  	action: ALLOW
+}
+
+//IMPORTER RULES
+rule ImporterInvokesShipmentReceived {
+  description: "Importer can invoke shipment received when it receives its shipment"
+  participant(p): "org.acme.shipping.perishable.Importer"
+  operation: ALL
+  resource(r): "org.acme.shipping.perishable.ShipmentReceived"
+  condition: (p.getIdentifier() == r.shipment.contract.importer.getIdentifier())
+  action: ALLOW
+}
+
+rule ImporterViewsShipment {
+  description: "Importer can view its own shipment"
+  participant(p): "org.acme.shipping.perishable.Importer"
+  operation: READ
+  resource(r): "org.acme.shipping.perishable.Shipment"
+  condition: (r.contract.importer.getIdentifier() == p.getIdentifier())
+  action: ALLOW
+}
+
+rule ImporterUpdatesShipment {
+  description: "Importer can update its own shipment"
+  participant(p): "org.acme.shipping.perishable.Importer"
+  operation: UPDATE
+  resource(r): "org.acme.shipping.perishable.Shipment"
+  condition: (r.contract.importer.getIdentifier() == p.getIdentifier())
+  action: ALLOW
+}
+
+rule ImporterViewsContract {
+  description: "Importer can view its own contract"
+  participant(p): "org.acme.shipping.perishable.Importer"
+  operation: READ
+  resource(r): "org.acme.shipping.perishable.Contract"
+  condition: (r.importer.getIdentifier() == p.getIdentifier())
+  action: ALLOW
+}
+
+rule ImporterCanPayOutToGrower {
+	description: "Importer add balance of Grower"
+  	participant: "org.acme.shipping.perishable.Importer"
+  	operation: UPDATE
+    resource: "org.acme.shipping.perishable.Grower"
+  	action: ALLOW
+}
+
+
+//ALL PARTICIPANTS RULES
+rule BusinessesOwnThemselves {
+  description: "Businesses can edit their own details"
+  participant(p): "org.acme.shipping.perishable.Business"
+  	operation: ALL
+    resource(r): "org.acme.shipping.perishable.Business"
+    condition: (p.getIdentifier() == r.getIdentifier())
+  	action: ALLOW
+}
+
+rule ViewAllParticipants {
+	description: "All parties can see each other"
+  	participant: "org.acme.shipping.perishable.Business"
+  	operation: READ
+    resource: "org.acme.shipping.perishable.Business"
+  	action: ALLOW
+}
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.Participant"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}
+
+
+
+
+
